@@ -33,7 +33,7 @@ jobs:
           ndk-version: r26d
 
       - name: Print NDK Files
-        run: ls -lAR /opt/hostedtoolcache/ndk/r26d/x64 /usr/local/lib/android/sdk/ndk/25.2.9519653
+        run: ls -lA /opt/hostedtoolcache/ndk/r26d/x64 /usr/local/lib/android/sdk/ndk/25.2.9519653
 
       - name: Compile and Install OpenSSL
         run: |
