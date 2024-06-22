@@ -37,7 +37,7 @@ jobs:
           OUTPATH="$HOME/openssl-android-arm64"
           cd openssl-*/
           #./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="$OUTPATH" --openssldir="$OUTPATH/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
-          ./Configure android64-arm64 -D__ANDROID_API__=26 --prefix="$OUTPATH" -fPIE
+          ./Configure android-arm64 -D__ANDROID_API__=26 --prefix="$OUTPATH" -fPIE
           make -j"$(nproc)"
           make install
           echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
