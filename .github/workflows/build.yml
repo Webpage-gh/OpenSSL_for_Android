@@ -32,7 +32,12 @@ jobs:
         with:
           ndk-version: r26d
 
-      - name: Compile and Install OpenSSL
+      - name: Print Environment
+        run: |
+          env
+          cat "$GIRHUB_ENV"
+
+- name: Compile and Install OpenSSL
         run: |
           OUTPATH="$HOME/openssl-android-arm64"
           cd openssl-*/
