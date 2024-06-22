@@ -42,7 +42,7 @@ jobs:
           make install
           echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
 
-- name: Upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: openssl-android-arm64
