@@ -34,6 +34,7 @@ jobs:
 
       - name: Compile and Install OpenSSL
         run: |
+          set -x
           OUTPATH="$HOME/openssl-android-arm64"
           PATH="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           cd openssl-*/
