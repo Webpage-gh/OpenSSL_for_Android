@@ -37,7 +37,7 @@ jobs:
           env
           cat "$GIRHUB_ENV"
 
-- name: Compile and Install OpenSSL
+      - name: Compile and Install OpenSSL
         run: |
           OUTPATH="$HOME/openssl-android-arm64"
           cd openssl-*/
