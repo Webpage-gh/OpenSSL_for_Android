@@ -19,13 +19,13 @@ jobs:
       - name: Download and unzip OpenSSL
         run: |
           source_info="$(curl -sL https://api.github.com/repos/openssl/openssl/releases/latest)"
-          source_url="$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz$")) | .browser_download_url')"
-          sha256_url="$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz\\.sha256$")) | .browser_download_url')"
+          source_url=$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz$")) | .browser_download_url')
+          sha256_url=$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz\\.sha256$")) | .browser_download_url')
           source_name=openssl.tar.gz
-          sha256_name="${source_name}.sha256"
-          wget -O "$source_name" "$source_url"
-          wget -O "$sha256_name" "$sha256_url"
-          sha256sum -c <(echo "$(cat "$sha256_name") $source_name") && tar -xzf $source_name || exit 1
+          sha256_name=${source_name}.sha256
+          wget -O $source_name "$source_url"
+          wget -O $sha256_name "$sha256_url"
+          sha256sum -c <(echo "$(cat $sha256_name) $source_name") && tar -xzf $source_name || exit 1
 
       - name: Setup NDK
         uses: nttld/setup-ndk@v1
@@ -34,13 +34,15 @@ jobs:
 
       - name: Compile and Install OpenSSL
         run: |
-          echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
+          OUTPATH="$HOME/openssl-android-arm64"
           cd openssl-*/
-          ./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="${{ env.OUTPATH }}" --openssldir="${{ env.OUTPATH }}/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
+          #./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="$OUTPATH" --openssldir="$OUTPATH/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
+          ./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="$OUTPATH" -fPIE
           make -j"$(nproc)"
           make install
+          echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
 
-      - name: Upload artifact
+- name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: openssl-android-arm64
