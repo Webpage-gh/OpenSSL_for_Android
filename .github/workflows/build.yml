@@ -16,33 +16,33 @@ jobs:
           sudo apt update
           sudo apt install build-essential cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu jq wget -y
 
-      - name: Download the latest source code
+      - name: Download and unzip OpenSSL
         run: |
-          source_info=$(curl -sL https://api.github.com/repos/openssl/openssl/releases/latest)
+          source_info="$(curl -sL https://api.github.com/repos/openssl/openssl/releases/latest)"
           source_url=$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz$")) | .browser_download_url')
           sha256_url=$(echo "$source_info" | jq -r '.assets[] | select(.name | test("^openssl-[0-9]*\\.[0-9]*\\.[0-9]*\\.tar\\.gz\\.sha256$")) | .browser_download_url')
           source_name=openssl.tar.gz
-          sha256_name="$source_name.sha256"
-          wget -O "$source_name" "$source_url"
-          wget -O "$sha256_name" "$sha256_url"
+          sha256_name=${source_name}.sha256
+          wget -O $source_name "$source_url"
+          wget -O $sha256_name "$sha256_url"
+          sha256sum -c <(echo "$(cat $sha256_name) $source_name") && tar -xzf $source_name || exit 1
 
-      - name: Verify and Extract OpenSSL
-        run: |
-          sha256sum -c <(echo "$(cat $sha256_name)" $source_name) || exit 1
-          tar -xzf openssl.tar.gz
-
-      - name: Setup NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r26d
+     # - name: Setup NDK
+       # uses: nttld/setup-ndk@v1
+       # with:
+         # ndk-version: r26d
 
       - name: Compile and Install OpenSSL
         run: |
-          echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
+          set -x
+          OUTPATH="$HOME/openssl-android-arm64"
+          export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           cd openssl-*/
-          ./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="${{ env.OUTPATH }}" --openssldir="${{ env.OUTPATH }}/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
+          #./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="$OUTPATH" --openssldir="$OUTPATH/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
+          ./Configure android-arm64 -D__ANDROID_API__=26 --prefix="$OUTPATH" -fPIE
           make -j"$(nproc)"
           make install
+          echo "OUTPATH=$HOME/openssl-android-arm64" >> "$GITHUB_ENV"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
