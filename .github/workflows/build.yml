@@ -28,7 +28,7 @@ jobs:
 
       - name: Verify and Extract OpenSSL
         run: |
-          sha256sum -c <(echo "$(cat "${{ env.sha256_name }}") ${{ source_name }}") || exit 1
+          sha256sum -c <(echo "$(cat "${{ env.sha256_name }}) ${{ source_name }}") || exit 1
           tar -xzf openssl.tar.gz
 
       - name: Setup NDK
