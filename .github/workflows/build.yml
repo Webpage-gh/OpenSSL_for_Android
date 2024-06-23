@@ -37,7 +37,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.TAG_MAME }}-android-arm64
+          name: ${{ env.TAG_NAME }}-android-arm64
           path: ${{ env.OUTPATH }}
 
       - name: Strip Symbol Information
