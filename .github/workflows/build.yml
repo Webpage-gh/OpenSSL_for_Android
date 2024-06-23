@@ -21,6 +21,7 @@ jobs:
           wget -nv -O $source_name "$source_url"
           wget -nv -O $sha256_name "$sha256_url"
           sha256sum -c <(echo "$(cat $sha256_name) $source_name") && tar -xzf $source_name || exit 1
+          echo "TAG_NAME=$(echo "$source_info" | jq -r '.tag_name')" >> "$GITHUB_ENV"
 
       - name: Compile and Install OpenSSL
         run: |
@@ -36,7 +37,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openssl-android-arm64
+          name: ${{ env.TAG_MAME }}-android-arm64
           path: ${{ env.OUTPATH }}
 
       - name: Strip Symbol Information
@@ -49,5 +50,5 @@ jobs:
       - name: Upload OpenSSL Binary
         uses: actions/upload-artifact@v4
         with:
-          name: openssl-binary.zip
+          name: openssl-binary
           path: ${{ env.OUTFILE }}
