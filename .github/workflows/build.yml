@@ -11,11 +11,6 @@ jobs:
   build-openssl:
     runs-on: ubuntu-latest
     steps:
-      - name: Install required packages
-        run: |
-          sudo apt update
-          sudo apt install build-essential cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu jq wget -y
-
       - name: Download and unzip OpenSSL
         run: |
           source_info="$(curl -sL https://api.github.com/repos/openssl/openssl/releases/latest)"
@@ -33,15 +28,26 @@ jobs:
           OUTPATH="$HOME/openssl-android-arm64"
           export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           cd openssl-*/
-          #./Configure android-arm64-v8a -D__ANDROID_API__=26 --prefix="$OUTPATH" --openssldir="$OUTPATH/ssl" no-shared no-unit-test no-ssl3 enable-ec_nistp_64_gcc_128 -fPIE -pie
-          ./Configure android-arm64 --prefix="$OUTPATH" no-shared no-unit-test enable-ec_nistp_64_gcc_128 -fPIC
+          ./Configure android-arm64 --prefix="$OUTPATH" no-shared enable-ec_nistp_64_gcc_128 -fPIC
           make -j"$(($(nproc)*2))"
           make install
-          # strip "$OUTPATH/bin/openssl"
           echo "OUTPATH=$OUTPATH" >> "$GITHUB_ENV"
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: openssl-android-arm64
           path: ${{ env.OUTPATH }}
+
+      - name: Strip Symbol Information
+        run: |
+          OUTFILE="$HOME/openssl"
+          export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+          llvm-objcopy -S $OUTPATH/bin/openssl "$OUTFILE"
+          echo "OUTFILE=$OUTFILE" >> "$GITHUB_ENV"
+
+      - name: Upload OpenSSL Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: openssl-binary.zip
+          path: ${{ env.OUTFILE }}
