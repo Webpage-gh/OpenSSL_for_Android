@@ -47,6 +47,7 @@ jobs:
       - name: Strip Symbol Information
         run: |
           OUTFILE="$HOME/openssl"
+          export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           llvm-objcopy -S $OUTPATH/bin/openssl "$OUTFILE"
           echo "OUTFILE=$OUTFILE" >> "$GITHUB_ENV"
 
