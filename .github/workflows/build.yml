@@ -1,7 +1,8 @@
 name: Build OpenSSL for ARM64
 
 on:
-  cron: '0 0 * * 0'
+  schedule:
+    - cron: '0 0 1 * *'
   push:
     branches: [ "main" ]
   pull_request:
@@ -31,7 +32,7 @@ jobs:
           export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
           cd openssl-*/
           ./Configure android-arm64 --prefix="$OUTPATH" no-shared enable-ec_nistp_64_gcc_128 -fPIC
-          make -j"$(($(nproc)*2))"
+          make -j$(nproc)
           make install
           echo "OUTPATH=$OUTPATH" >> "$GITHUB_ENV"
 
